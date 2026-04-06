@@ -5,6 +5,20 @@ declare(strict_types=1);
 /** @var list<\App\Model\Category> $categories */
 /** @var array<string, list<\App\Model\Document>> $documentsBySlug */
 
+/** Порядок и классы позиций как в статичном index.html (Downloads) */
+$diagramCards = [
+    ['pos' => 'card-1', 'slug' => 'family', 'extraClass' => 'top-0'],
+    ['pos' => 'card-3', 'slug' => 'society', 'extraClass' => 'top-0'],
+    ['pos' => 'card-2', 'slug' => 'rules', 'extraClass' => 'translate-middle-y'],
+    ['pos' => 'card-4', 'slug' => 'career', 'extraClass' => 'top-50 translate-middle-y'],
+    ['pos' => 'card-5', 'slug' => 'college', 'extraClass' => ''],
+    ['pos' => 'card-6', 'slug' => 'tech', 'extraClass' => ''],
+];
+$bySlug = [];
+foreach ($categories as $c) {
+    $bySlug[$c->slug] = $c;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -56,10 +70,18 @@ declare(strict_types=1);
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         padding: 25px;
-        max-width: 100%;
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         transition: all 0.3s ease;
         cursor: pointer;
+      }
+
+      .ecosystem-diagram-desktop .card-box {
+        width: 280px;
+      }
+
+      .ecosystem-diagram--stacked .card-box {
+        width: 100%;
+        max-width: 100%;
       }
 
       .card-box:hover {
@@ -240,6 +262,123 @@ declare(strict_types=1);
         animation: fadeInUp 0.6s ease-out;
         animation-fill-mode: both;
       }
+
+      .card-box.card-1 {
+        animation-delay: 0s;
+      }
+      .card-box.card-2 {
+        animation-delay: 0.1s;
+      }
+      .card-box.card-3 {
+        animation-delay: 0.2s;
+      }
+      .card-box.card-4 {
+        animation-delay: 0.3s;
+      }
+      .card-box.card-5 {
+        animation-delay: 0.4s;
+      }
+      .card-box.card-6 {
+        animation-delay: 0.5s;
+      }
+
+      .card-1 {
+        left: 180px;
+      }
+      .card-2 {
+        left: 120px;
+        top: 51%;
+      }
+      .card-3 {
+        right: 180px;
+      }
+      .card-4 {
+        right: 134px;
+      }
+      .card-5 {
+        bottom: -30px;
+        left: 235px;
+      }
+      .card-6 {
+        right: 190px;
+        bottom: -20px;
+      }
+
+      .arrow {
+        position: absolute;
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        height: 2px;
+        transform-origin: left center;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+      }
+
+      .arrow::after {
+        content: "";
+        position: absolute;
+        right: -6px;
+        top: -4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--secondary-color);
+      }
+
+      .arrow-1 {
+        width: 190px;
+        top: 160px;
+        left: 41.5%;
+        transform: translateX(-50%) rotate(27deg);
+      }
+      .arrow-2 {
+        width: 225px;
+        top: 50%;
+        left: 48.5%;
+        transform: translate(-10%, -50%) rotate(180deg);
+      }
+      .arrow-3 {
+        width: 200px;
+        top: 140px;
+        left: 55%;
+        transform: translateX(70%) rotate(150deg);
+      }
+      .arrow-4 {
+        width: 210px;
+        top: 50%;
+        right: 38.5%;
+        transform: translate(50%, -50%) rotate(0deg);
+      }
+      .arrow-5 {
+        width: 200px;
+        bottom: 240px;
+        left: 60%;
+        transform: translateX(-50%) rotate(30deg);
+      }
+      .arrow-6 {
+        width: 150px;
+        bottom: 165px;
+        right: 52%;
+        transform: translateX(10%) rotate(-30deg);
+      }
+
+      .arrows {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .ecosystem-diagram-desktop {
+        overflow: visible;
+      }
+
+      .ecosystem-diagram-desktop .center-icon {
+        z-index: 2;
+      }
+
+      .ecosystem-diagram-desktop .card-box {
+        z-index: 2;
+      }
     </style>
   </head>
   <body>
@@ -256,14 +395,47 @@ declare(strict_types=1);
           <a href="admin/categories.php">админ-панели</a>.
         </div>
       <?php else : ?>
-        <div class="center-icon mb-4 mx-auto">
-          <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem"></i>
+        <div class="position-relative mt-5 ecosystem-diagram-desktop d-none d-lg-block" style="height: 600px">
+          <div class="center-icon position-absolute top-50 start-50 translate-middle">
+            <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem"></i>
+          </div>
+          <div class="arrows" aria-hidden="true">
+            <div class="arrow arrow-1"></div>
+            <div class="arrow arrow-2"></div>
+            <div class="arrow arrow-3"></div>
+            <div class="arrow arrow-4"></div>
+            <div class="arrow arrow-5"></div>
+            <div class="arrow arrow-6"></div>
+          </div>
+          <?php foreach ($diagramCards as $row) : ?>
+            <?php
+            $cat = $bySlug[$row['slug']] ?? null;
+            if ($cat === null) {
+                continue;
+            }
+            $posClass = $row['pos'];
+            $extra = trim($row['extraClass']);
+            ?>
+            <div
+              class="card-box <?= htmlspecialchars($posClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> position-absolute<?= $extra !== '' ? ' ' . htmlspecialchars($extra, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : '' ?> btn text-start"
+              data-bs-toggle="modal"
+              data-bs-target="#<?= htmlspecialchars($cat->modalId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+            >
+              <i class="bi <?= htmlspecialchars($cat->iconClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> <?= htmlspecialchars($cat->diagramIconClass, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> fs-3"></i>
+              <h6 class="mt-2"><?= htmlspecialchars($cat->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h6>
+              <p class="small text-muted mb-0"><?= htmlspecialchars($cat->subtitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+            </div>
+          <?php endforeach; ?>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center mb-2">
-          <?php foreach ($categories as $cat) : ?>
-            <div class="col d-flex justify-content-center">
+
+        <div class="ecosystem-diagram--stacked d-lg-none">
+          <div class="center-icon mb-4 mx-auto">
+            <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem"></i>
+          </div>
+          <div class="d-flex flex-column gap-3">
+            <?php foreach ($categories as $cat) : ?>
               <div
-                class="card-box btn"
+                class="card-box btn w-100 text-start"
                 data-bs-toggle="modal"
                 data-bs-target="#<?= htmlspecialchars($cat->modalId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
               >
@@ -271,21 +443,21 @@ declare(strict_types=1);
                 <h6 class="mt-2"><?= htmlspecialchars($cat->title, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h6>
                 <p class="small text-muted mb-0"><?= htmlspecialchars($cat->subtitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
               </div>
-            </div>
-          <?php endforeach; ?>
+            <?php endforeach; ?>
+          </div>
         </div>
       <?php endif; ?>
     </div>
 
     <footer class="text-center mt-5 py-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #eef1ff 100%); border-top: 1px solid rgba(67, 97, 238, 0.1); box-shadow: 0 -4px 20px rgba(67, 97, 238, 0.05)">
-      <p class="mb-2 text-secondary">
+      <p class="mb-0 text-secondary">
         Разработчик
         <a href="https://shotayev.dev" class="fw-semibold text-primary text-decoration-none" target="_blank">shotayev.dev</a>
         <i class="bi bi-heart-fill text-danger mx-1"></i>
         КТСК
       </p>
-      <p class="mb-0 small">
-        <a href="admin/login.php" class="text-secondary text-decoration-none"><i class="bi bi-shield-lock me-1"></i>Админ-панель</a>
+      <p class="mb-0 small mt-2">
+        <a href="admin/login.php" class="text-secondary text-decoration-none"><i class="bi bi-shield-check me-1"></i>Админ-панель</a>
       </p>
     </footer>
 <?php
