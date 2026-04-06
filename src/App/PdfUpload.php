@@ -44,7 +44,10 @@ final class PdfUpload
             }
         }
         if (!is_writable($pdfAbsoluteDir)) {
-            return ['status' => 'error', 'message' => 'Папка pdf/ недоступна для записи.'];
+            return [
+                'status' => 'error',
+                'message' => 'Папка pdf/ недоступна для записи. На сервере выдайте права каталогу (например chmod 775) и владельца — пользователю PHP/веб-сервера (часто www-data, nginx или учётная запись сайта в панели хостинга).',
+            ];
         }
         $original = isset($file['name']) && is_string($file['name']) ? $file['name'] : 'document.pdf';
         $destName = self::makeUniqueFilename($pdfAbsoluteDir, $original);
