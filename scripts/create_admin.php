@@ -10,7 +10,10 @@ declare(strict_types=1);
  */
 
 if (PHP_SAPI !== 'cli') {
-    fwrite(STDERR, "Только CLI.\n");
+    if (!headers_sent()) {
+        header('Content-Type: text/plain; charset=utf-8', true, 403);
+    }
+    echo "Только CLI. Запуск из корня проекта:\nphp scripts/create_admin.php <логин> <пароль>\n";
     exit(1);
 }
 
